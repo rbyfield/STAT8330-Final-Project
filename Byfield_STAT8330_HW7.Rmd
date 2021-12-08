@@ -1,0 +1,157 @@
+---
+title: "STAT 8330 HW7"
+author: "Richard Byfield"
+date: "12/3/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r cars}
+library(readr)
+shoes <- read_table('C:\\Users\\richa\\Downloads\\footwear.txt', col_names=F)
+shoes <- t(shoes)
+rotate <- function(x) t(apply(x,2,rev))
+image(rotate(matrix(shoes[1,], nrow=sqrt(ncol(shoes)))))
+```
+
+Question 1:
+
+```{r pressure, echo=FALSE}
+shoes = t(shoes)
+shoes_mean= rowMeans(shoes)
+library(phonTools)
+mean_image = zeros(28,28)
+p=784
+for (i in 1:28)
+  for (j in 1:28){
+    mean_image[i,j]=shoes_mean[p]
+    p=p-1
+  }
+image(mean_image)
+
+library(matrixStats)
+shoes_sd= rowSds(shoes)
+Sd_image = zeros(28,28)
+p=784
+for (i in 1:28)
+  for (j in 1:28){
+    Sd_image[i,j]=shoes_sd[p]
+    p=p-1
+  }
+image(Sd_image)
+```
+
+Question 2:
+a.
+
+```{r}
+library(ggplot2)
+library(phonTools)
+scale.svd<-svd(scale(shoes),nu=0)
+var<-nrow(shoes)-1   
+vectors<-scale.svd$v  
+sdev<-scale.svd$d/sqrt(var)  
+values<-sdev*sdev
+scores<-scale(shoes)%*%vectors 
+total.var<-sum(diag(cov(scale(shoes))))
+prop.var<-rep(NA,ncol(shoes));cum.var<-rep(NA,ncol(shoes)) 
+for(i in 1:5){prop.var[i]<-var(scores[,i])/total.var} 
+for(i in 1:5){cum.var[i]<-sum(prop.var[1:i])} 
+prop.var[1]
+prop.var[2]
+prop.var[3]
+prop.var[4]
+prop.var[5]
+cum.var[5]
+shoes = t(shoes)
+shoes_norm = matrix(0, ncol=ncol(shoes), nrow=nrow(shoes))
+for(i in 1:nrow(shoes)){
+  shoes_norm[i,] = shoes[i,] - img_mean
+}
+pcob <- prcomp(shoes_norm)
+sX = svd(shoes_norm)
+image(rotate(matrix(sX$v[,1], nrow=sqrt(ncol(shoes)))))
+image(rotate(matrix(sX$v[,2], nrow=sqrt(ncol(shoes)))))
+
+shoes_random = matrix(0, ncol=ncol(shoes), nrow=nrow(shoes))
+for (i in 1:ncol(shoes))
+{
+  shoes_random[,i] = sample(shoes[,i],nrow(shoes))
+}
+
+shoes_random_norm = matrix(0, ncol=ncol(shoes), nrow=nrow(shoes))
+for(i in 1:nrow(shoes_random)){
+  shoes_random_norm[i,] = shoes_random[i,] - img_mean
+}
+sX_random = svd(shoes_random_norm)
+
+plot(sX$d^2/sum(sX$d^2), xlim = c(0, 10), type = "b", 
+pch = 15, xlab = "the number of PCs", ylab = "variance value", col="red")
+points(sX_random$d^2/sum(sX_random$d^2), col="blue")
+lines(sX_random$d^2/sum(sX_random$d^2), col="blue")
+```
+
+
+Question 3:
+
+```{r}
+km.out <- kmeans (sX$v[,1:4], 3, nstart = 20)
+plot (sX$v[,1:4], col = (km.out$cluster + 1),
+main = "K- Means Clustering Results with K = 3",
+xlab = "PC1", ylab = "PC2", pch = 20, cex = 2)
+```
+
+
+Question 4:
+
+```{r}
+library(kernlab)
+shoes <- t(shoes)
+set.seed(1)
+subsamp <- shoes[c(sample(1:6000, 700),
+                 sample(6001:12000, 700),
+                 sample(12001:18000, 700)) ,]
+
+kpc <- kpca(subsamp, kernel = "rbfdot",features = 4)
+pcv(kpc)
+km.out <- kmeans (pcv(kpc), 3, nstart = 20)
+plot (pcv(kpc), col = (km.out$cluster + 1),
+main = "K- Means Clustering Results with K = 3",
+xlab = "PC1", ylab = "PC2", pch = 20, cex = 2)
+```
+
+
+Question 5:
+
+```{r}
+library(NMF)
+shoes = t(shoes)
+mat <- as.matrix(shoes)
+i0 <- which(colSums(mat) == 0)
+i_na <- which(colSums(is.na(mat)) > 0)
+res <- nmf(mat[, -c(i0, i_na)], 4, 'brunet', seed=123456)
+```
+
+
+
+
+Question 6:
+
+```{r}
+library(lle)
+LLE(shoes)
+```
+
+
+Question 7
+
+```{r}
+library(dimRed)
+embed(shoes)
+```
+
