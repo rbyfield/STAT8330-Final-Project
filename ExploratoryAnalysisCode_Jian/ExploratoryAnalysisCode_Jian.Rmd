@@ -33,7 +33,6 @@ library(rgdal) # package for geospatial analysis
 library(ggplot2) # package for plotting
 
 
-
 # reading the data
 nc_SST_orig <- nc_open('F:\\courses\\STAT\\8330 data analysis 3\\project3\\SSTdata_011948_022018.nc')
 nc_prec_orig <- nc_open('F:\\courses\\STAT\\8330 data analysis 3\\project3\\Pdata_011948_022018-1.nc')
@@ -77,4 +76,83 @@ image(x=X_prec, y=Y_prec, z=prec[,,842],
 #prec
 prec[is.na(prec)] <- 0
 #prec
+#quantile(prec)
+#prec<-ifelse(prec>2.8619213 & prec<=31.719044,5,prec)
+#prec<-ifelse(prec>1.4166624 & prec<=2.8619213,4,prec)
+#prec<-ifelse(prec>0.3640884 & prec<=1.4166624,3,prec)
+#prec<-ifelse(prec>0 & prec<=0.3640884,2,prec)
+#prec<-ifelse(prec==0,1,prec)
+#prec
+#prec <- as.factor(prec)
+#prec
+#plot(prec)
 ```
+
+
+```{r, echo=TRUE}
+library(ncdf4)
+library(lubridate)
+library(ggplot2)
+library(tidyverse)
+library(ggthemes)
+library(forecast)
+library(reshape2)
+library(zoo)
+library(ggfortify)
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+
+par(mfrow=c(2,1))
+
+lon_sst <- ncvar_get(nc_SST_orig,"X")
+lat_sst <- ncvar_get(nc_SST_orig,"Y")
+time_sst <- ncvar_get(nc_SST_orig,"T")
+time_sst = time_sst * 30.42
+time_sst <- as.Date(time_sst, origin="1960-1-1 00:00", tz="UTC")
+sst_anom <- ncvar_get(nc_SST_orig, "anom")
+sst_mean <- apply(sst_anom,3,mean,na.rm=TRUE)
+
+tempseries <- data.frame(year=time_sst,sst=sst_mean)
+tempseries %>% ggplot(aes(x=year,y=sst))+geom_line()+labs(title = "Monthly mean SST from January 1948 to Feburary 2018", x="year",y="Temperature" )
+
+lon_prec <- ncvar_get(nc_prec_orig,"X")
+lat_prec <- ncvar_get(nc_prec_orig,"Y")
+time_prec <- ncvar_get(nc_prec_orig,"T")
+time_prec = time_prec * 30.42
+time_prec <- as.Date(time_prec, origin="1960-1-1 00:00", tz="UTC")
+prec_anom <- ncvar_get(nc_prec_orig)
+prec_anom[is.na(prec_anom)] <- 0
+prec_anom[prec_anom<0] <- 0
+prec_mean <- apply(prec_anom,3,mean,na.rm=TRUE)
+
+tempseries <- data.frame(year=time_prec,prec=prec_mean)
+tempseries %>% ggplot(aes(x=year,y=prec))+geom_line()+labs(title = "Monthly mean precipitation from January 1948 to Feburary 2018", x="year",y="Precipitation" )
+```
+
+```{r, echo=TRUE}
+par(mfrow=c(2,1))
+tempseries <- data.frame(year=time_sst,sst=sst_mean)
+month_mean_sst = rep(0, 12)
+for (i in 1:nrow(tempseries))
+{
+   month = as.numeric(substr(as.character(tempseries[i,1]),6,7))
+   month_mean_sst[month] = month_mean_sst[month] + tempseries[i,2]
+}
+month_mean_sst = data.frame(month_num=factor(c(1:12)), month_name=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), sst=month_mean_sst)
+
+
+ggplot(month_mean_sst, aes(x=factor(month_num),y=sst))+geom_point(aes(x=month_num,y=sst)) + scale_x_discrete(breaks = factor(c(1:12)), labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + labs(title = "Mean SST for each month", x="month",y="Temperature" )
+
+
+tempseries <- data.frame(year=time_prec,prec=prec_mean)
+month_mean_prec = rep(0, 12)
+for (i in 1:nrow(tempseries))
+{
+   month = as.numeric(substr(as.character(tempseries[i,1]),6,7))
+   month_mean_prec[month] = month_mean_prec[month] + tempseries[i,2]
+}
+month_mean_prec = data.frame(month_num=factor(c(1:12)), prec=month_mean_prec, month_name=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+ggplot(month_mean_prec, aes(x=factor(month_num),y=prec))+geom_point(aes(x=month_num,y=prec)) + scale_x_discrete(breaks = c(1:12), labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + labs(title = "Mean Precipitation for each month", x="month",y="Temperature")
+```
+
+
