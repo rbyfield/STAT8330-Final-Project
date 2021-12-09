@@ -1,0 +1,80 @@
+---
+title: "project3"
+author: ''
+date: "12/08/2021"
+output: rmarkdown::github_document
+---
+
+<!-- #Above is the header. there are options to change formatting if the default doesn't suit your style -->
+
+
+<!-- #Below is an example of an r code chunk, Code->Insert Chunk (or Ctrl+Alt+I / Cmd+Option +I) the r means it is an r code chunk, the next word is the chunk title, and after the comma is chunk options--->
+
+```{r setup, include=FALSE}
+#In this chunk (named setup) I am setting up my global options. The include=FALSE above just means that the results from this chunk will not appear in the document.
+knitr::opts_chunk$set(echo = F, warning = F,
+                      cache = F)
+
+#One can set chunk options in each chunk or do them globally like above - here echo=F means my code wont appear in the knitted document, warning=F means warnings wont appear...
+
+
+#Load in libraries 
+```
+
+```{r no-format, echo=TRUE}
+# needed packages ---------------------------------------------------------
+# uncomment install lines if you do not have the package and comment them after you are done!
+#install.packages("ncdf4")
+library(ncdf4) # package for netcdf manipulation
+#install.packages("raster")
+library(raster) # package for raster manipulation
+#install.packages("rgdal")
+library(rgdal) # package for geospatial analysis
+library(ggplot2) # package for plotting
+
+
+
+# reading the data
+nc_SST_orig <- nc_open('F:\\courses\\STAT\\8330 data analysis 3\\project3\\SSTdata_011948_022018.nc')
+nc_prec_orig <- nc_open('F:\\courses\\STAT\\8330 data analysis 3\\project3\\Pdata_011948_022018-1.nc')
+
+##### SST variables 
+zlev <- ncvar_get(nc_SST_orig, "zlev")
+# East Longitude (deg)
+X_SST <- ncvar_get(nc_SST_orig, "X")
+print (dim(X_SST))
+# time from Jan. 1948 to Feb. 2018 
+# 12*(2018-1948)+1(Jan 2018)+1(Feb 2018) = 842
+T_SST <- ncvar_get(nc_SST_orig, "T")
+print (dim(T_SST))
+# Latitude (deg)
+Y_SST <- ncvar_get(nc_SST_orig, "Y")
+print (dim(Y_SST))
+SST_anom <- ncvar_get(nc_SST_orig, "anom")
+print (dim(SST_anom))
+image(x=X_SST, y=Y_SST, z=SST_anom[,,842], 
+      col = hcl.colors(12, "YlOrRd", rev = TRUE),
+      xlab="East Longitude (deg)",
+      ylab="Latitude (deg)", main="SST Anomalies: Feb 2018")
+
+##### precipitation variables
+# East Longitude (deg)
+X_prec <- ncvar_get(nc_prec_orig, "X")
+print (dim(X_prec))
+# time 
+T_prec <- ncvar_get(nc_prec_orig, "T")
+print (dim(T_prec))
+# Latitude (deg)
+Y_prec <- ncvar_get(nc_prec_orig, "Y")
+print (dim(Y_prec))
+# Precipitation
+prec <- ncvar_get(nc_prec_orig, "rain")
+# reproduce the image in file
+image(x=X_prec, y=Y_prec, z=prec[,,842], 
+      col = hcl.colors(12, "YlOrRd", rev = TRUE),
+      xlab="West Longitude (deg)",
+      ylab="Latitude (deg)", main="Precipitation: Feb 2018")
+#prec
+prec[is.na(prec)] <- 0
+#prec
+```
