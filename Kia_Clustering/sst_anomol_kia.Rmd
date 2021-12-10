@@ -136,9 +136,11 @@ month_mean_sst = rep(0, 12)
 for (i in 1:nrow(tempseries))
 {
    month = as.numeric(substr(as.character(tempseries[i,1]),6,7))
-   month_mean_sst[month] = month_mean_sst[month] + tempseries[i,2]
+   month_mean_sst[month] = month_mean_sst[month] + abs(tempseries[i,2])
 }
-
+# you need to get the average
+months_count = c(71, 71, rep(70,10))
+month_mean_sst <- month_mean_sst/months_count
 month_mean_sst = data.frame(month_num=factor(c(1:12)),
                             month_name=month_name, sst=month_mean_sst)
 
@@ -154,8 +156,12 @@ month_mean_prec = rep(0, 12)
 for (i in 1:nrow(tempseries))
 {
    month = as.numeric(substr(as.character(tempseries[i,1]),6,7))
-   month_mean_prec[month] = month_mean_prec[month] + tempseries[i,2]
+   month_mean_prec[month] = month_mean_prec[month] + abs(tempseries[i,2])
 }
+# you need to get the average
+months_count = c(71, 71, rep(70,10))
+month_mean_prec <- month_mean_prec/months_count
+
 month_mean_prec = data.frame(month_num=factor(c(1:12)), prec=month_mean_prec, 
                              month_name=month_name)
 jpeg("Months_allyears_prec.png", width=1600, height=1000, res=300)
