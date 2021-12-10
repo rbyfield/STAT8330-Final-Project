@@ -1,0 +1,179 @@
+#install.packages("ncdf4")
+library(ncdf4) # package for netcdf manipulation
+#install.packages("raster")
+library(raster) # package for raster manipulation
+#install.packages("rgdal")
+library(rgdal) # package for geospatial analysis
+library(ggplot2) # package for plotting
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggspatial)
+# reading the data
+nc_SST_orig <- nc_open('C:\\Users\\이수환\\Desktop\\STAT 8330\\Homework\\project 3\\SSTdata_011948_022018.nc')
+nc_prec_orig <- nc_open('C:\\Users\\이수환\\Desktop\\STAT 8330\\Homework\\project 3\\Pdata_011948_022018-1.nc')
+##### SST variables 
+zlev <- ncvar_get(nc_SST_orig,"zlev")
+# East Longitude (deg)
+X_SST <- ncvar_get(nc_SST_orig, "X")
+print (dim(X_SST))
+# time from Jan. 1948 to Feb. 2018 
+# 12*(2018-1948)+1(Jan 2018)+1(Feb 2018) = 842
+T_SST <- ncvar_get(nc_SST_orig, "T")
+print (dim(T_SST))
+# Latitude (deg)
+Y_SST <- ncvar_get(nc_SST_orig, "Y")
+print (dim(Y_SST))
+SST_anom <- ncvar_get(nc_SST_orig, "anom")
+print (dim(SST_anom))
+image(x=X_SST, y=Y_SST, z=SST_anom[,,842], 
+      col = hcl.colors(12, "YlOrRd", rev = TRUE),
+      xlab="East Longitude (deg)",
+      ylab="Latitude (deg)", main="SST Anomalies: Feb 2018")
+
+library(fields)
+library(RColorBrewer)
+s1 <- which(is.na(SST_anom[,,1]))
+s2 <- which(!is.na(SST_anom[,,1]))
+sst <- matrix(0, nrow = dim(SST_anom)[3], ncol = length(s2))
+for(i in 1:dim(SST_anom)[3])
+  sst[i,] <- SST_anom[,,i][-s1]
+eof <- svd(sst)$v
+loc <- as.matrix(expand.grid(x = X_SST, Y_SST = Y_SST))[s2,]
+coltab <- colorRampPalette(brewer.pal(9,"BrBG"))(2048)
+# plot the first EOF
+par(mar = c(5,5,3,3), oma=c(1,1,1,1))
+quilt.plot(loc, eof[,1], nx = length(X_SST), 
+           ny = length(Y_SST), xlab = "longitude",
+           ylab = "latitude", 
+           main = "1st EOF", col = coltab,
+           cex.lab = 3, cex.axis = 3, cex.main = 3,
+           legend.cex = 20)
+maps::map(database = "world", fill = TRUE, col = "gray", 
+          ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
+
+# plot the second EOF
+par(mar = c(5,5,3,3), oma=c(1,1,1,1))
+quilt.plot(loc, eof[,2], nx = length(X_SST), 
+           ny = length(Y_SST), xlab = "longitude",
+           ylab = "latitude", 
+           main = "2nd EOF", col = coltab,
+           cex.lab = 3, cex.axis = 3, cex.main = 3,
+           legend.cex = 20)
+maps::map(database = "world", fill = TRUE, col = "gray", 
+          ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
+
+##### precipitation variables
+# East Longitude (deg)
+X_prec <- ncvar_get(nc_prec_orig, "X")
+print (dim(X_prec))
+# time 
+T_prec <- ncvar_get(nc_prec_orig, "T")
+print (dim(T_prec))
+# Latitude (deg)
+Y_prec <- ncvar_get(nc_prec_orig, "Y")
+print (dim(Y_prec))
+# Precipitation
+prec <- ncvar_get(nc_prec_orig, "rain")
+# reproduce the image in file
+image(x=X_prec, y=Y_prec, z=prec[,,842], 
+      col = hcl.colors(12, "YlOrRd", rev = TRUE),
+      xlab="West Longitude (deg)",
+      ylab="Latitude (deg)", main="Precipitation: Feb 2018")
+prec[is.na(prec)] <- 0
+
+
+library(ncdf4)
+library(lubridate)
+library(ggplot2)
+library(tidyverse)
+library(ggthemes)
+library(forecast)
+library(reshape2)
+library(zoo)
+library(ggfortify)
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
+par(mfrow=c(2,1))
+lon_sst <- ncvar_get(nc_SST_orig,"X")
+lat_sst <- ncvar_get(nc_SST_orig,"Y")
+time_sst <- ncvar_get(nc_SST_orig,"T")
+time_sst = time_sst * 30.42
+time_sst <- as.Date(time_sst, origin="1960-1-1 00:00", tz="UTC")
+sst_anom <- ncvar_get(nc_SST_orig, "anom")
+sst_mean <- apply(sst_anom,3,mean,na.rm=TRUE)
+tempseries <- data.frame(year=time_sst,sst=sst_mean)
+tempseries %>% ggplot(aes(x=year,y=sst))+geom_line()+labs(title = "Monthly mean SST from January 1948 to Feburary 2018", x="year",y="Temperature" )
+
+# Monthly mean,Annual mean and five years moving average
+mov_avg <- tempseries %>% select(year, sst) %>% mutate(sst_1yr = rollmean(sst, k = 13, fill = NA, align = "right"), sst_5yr = rollmean(sst, k = 61, fill = NA, align = "right"))
+mov_avg %>% gather(key="metrice",value = "value",sst:sst_5yr)%>% ggplot(aes(x=year,y=value,col=metrice))+
+  geom_line()+scale_color_manual(values = c("bisque4","darkred","blue"),labels=c("Monthly mean","Annual mean","5 years moving Average"))+
+  scale_x_date(limits =ymd(c("1948-01-01","2018-01-01")) ,breaks = seq(ymd("1948-01-01"),ymd("2018-01-01"),"10 years"),date_labels ="%Y")+ 
+  scale_y_continuous(breaks = seq(23,33,0.5))+labs( x="year",y="SST [°C]" )+
+  theme_clean(base_size = 12,)+
+  theme(legend.title = element_blank(),legend.position = c("top"),legend.direction = "horizontal")
+
+# Decomposing the components of the additive time series
+ts <- ts(sst_mean,start = c(1948,1),end = c(2018,2),frequency = 12,class = "ts")
+#decomposition of ts object into trend,seasonality and error by additive model
+decomposed <- decompose(ts, type = "additive")
+#plot the components of an additive time series
+theme_set(theme_bw())
+autoplot(decomposed)
+#remove seasonality from the ts
+decomposed_trend <- ts - decomposed$seasonal
+# Plot the linear trend of seasonally adjusted time series
+# make a dataframe of the trend 
+set.seed(1)
+decomposed_trend_df <- data.frame(date =as.Date(as.yearmon(time(decomposed_trend))),sst=as.matrix(decomposed_trend))
+decomposed_trend_df %>% ggplot(aes(x=date, y=sst))+
+  geom_line(alpha=0.8)+
+  geom_smooth(method= "lm", se=FALSE, col="red") + geom_text(x =1940, y = 0.9, label = "y = 28.37 + 0.000027 x , r² = 0.486", hjust=1.5,colour="blue")+
+  scale_x_date(limits =ymd(c("1948-01-01","2018-02-01")), breaks = seq(ymd("1948-01-01"), ymd("2018-02-01"),"10 years"), minor_breaks = "1 years", date_labels ="%Y")+
+  labs(x="year",y="SST [°C]" )+ 
+  scale_y_continuous(breaks = seq(25,32,0.2))+
+  theme_clean()
+
+# Temporal variability of Seasonality
+year=time_sst
+ts_df <- data.frame(time=year, sst=sst_mean) 
+
+ts_df <- ts_df %>% mutate(year=year(time)) %>% mutate(month= month(time,label=TRUE)) %>% mutate(season = case_when(month %in% c("Nov","Dec","Jan","Feb") ~ "Winter", month %in% c("Mar","Apr","May") ~ "Spring", month %in% c("Jun","Jul","Aug") ~ "Summer", month %in%  c("Sep","Oct") ~ "Fall", TRUE ~ NA_character_) ) %>% select(-time)  %>%  as_tibble()
+ts_df$season <- as.factor(ts_df$season)
+ts_df %>% ggplot(aes(x=month,y=sst,fill=season)) + geom_boxplot(position = position_dodge(width = 0.7))+scale_y_continuous(breaks = seq(20,35,0.5))+labs(x="month",y="SST [°C]")+scale_fill_manual(values = c("antiquewhite4","darkolivegreen4","chocolate4","cornflowerblue"))+theme_clean()+theme(legend.title = element_blank())
+
+#################################################
+lon_prec <- ncvar_get(nc_prec_orig,"X")
+lat_prec <- ncvar_get(nc_prec_orig,"Y")
+time_prec <- ncvar_get(nc_prec_orig,"T")
+time_prec = time_prec * 30.42
+time_prec <- as.Date(time_prec, origin="1960-1-1 00:00", tz="UTC")
+prec_anom <- ncvar_get(nc_prec_orig)
+prec_anom[is.na(prec_anom)] <- 0
+prec_anom[prec_anom<0] <- 0
+prec_mean <- apply(prec_anom,3,mean,na.rm=TRUE)
+tempseries <- data.frame(year=time_prec,prec=prec_mean)
+tempseries %>% ggplot(aes(x=year,y=prec))+geom_line()+labs(title = "Monthly mean precipitation from January 1948 to Feburary 2018", x="year",y="Precipitation" )
+
+par(mfrow=c(2,1))
+tempseries <- data.frame(year=time_sst,sst=sst_mean)
+month_mean_sst = rep(0, 12)
+for (i in 1:nrow(tempseries))
+{
+  month = as.numeric(substr(as.character(tempseries[i,1]),6,7))
+  month_mean_sst[month] = month_mean_sst[month] + tempseries[i,2]
+}
+month_mean_sst = data.frame(month_num=factor(c(1:12)), month_name=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), sst=month_mean_sst)
+ggplot(month_mean_sst, aes(x=factor(month_num),y=sst))+geom_point(aes(x=month_num,y=sst)) + scale_x_discrete(breaks = factor(c(1:12)), labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + labs(title = "Mean SST for each month", x="month",y="Temperature" )
+tempseries <- data.frame(year=time_prec,prec=prec_mean)
+month_mean_prec = rep(0, 12)
+for (i in 1:nrow(tempseries))
+{
+  month = as.numeric(substr(as.character(tempseries[i,1]),6,7))
+  month_mean_prec[month] = month_mean_prec[month] + tempseries[i,2]
+}
+month_mean_prec = data.frame(month_num=factor(c(1:12)), prec=month_mean_prec, month_name=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+ggplot(month_mean_prec, aes(x=factor(month_num),y=prec))+geom_point(aes(x=month_num,y=prec)) + scale_x_discrete(breaks = c(1:12), labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + labs(title = "Mean Precipitation for each month", x="month",y="Temperature")
+
+
