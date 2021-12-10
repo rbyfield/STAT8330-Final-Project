@@ -174,7 +174,7 @@ ts_df %>% ggplot(aes(x=month,y=sst,fill=season)) + geom_boxplot(position = posit
 ```
 
 
-```{r}
+```{r, echo=TRUE}
 prec_s1 <- which(is.na(prec[,,1]))
 prec_s2 <- which(!is.na(prec[,,1]))
 prec_sst <- matrix(0, nrow = dim(prec)[3], ncol = length(prec_s2))

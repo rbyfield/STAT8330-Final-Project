@@ -355,8 +355,109 @@ ts_df %>% ggplot(aes(x=month,y=sst,fill=season)) + geom_boxplot(position = posit
 
 ![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-2-7.png)<!-- -->
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-4.png)<!-- -->![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-5.png)<!-- -->
+``` r
+prec_s1 <- which(is.na(prec[,,1]))
+prec_s2 <- which(!is.na(prec[,,1]))
+prec_sst <- matrix(0, nrow = dim(prec)[3], ncol = length(prec_s2))
+for(i in 1:dim(prec)[3])
+   prec_sst[i,] <- prec[,,i][-prec_s1]
+prec_eof <- svd(prec_sst)$v
+loc <- as.matrix(expand.grid(x = X_prec, Y_prec = Y_prec))[prec_s2,]
+coltab <- colorRampPalette(brewer.pal(9,"BrBG"))(2048)
+# plot the first EOF
+par(mfrow=c(1,1))
+quilt.plot(loc, prec_eof[,1], nx = length(X_prec), 
+           ny = length(Y_prec), xlab = "longitude",
+           ylab = "latitude", 
+           main = "1st EOF", col = coltab,
+           cex.lab = 3, cex.axis = 3, cex.main = 3,
+           legend.cex = 20)
+maps::map(database = "world", fill = TRUE, col = "gray", 
+          ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+# plot the second EOF
+par(mar = c(5,5,3,3), oma=c(1,1,1,1))
+quilt.plot(loc, prec_eof[,2], nx = length(X_prec), 
+           ny = length(Y_prec), xlab = "longitude",
+           ylab = "latitude", 
+           main = "2nd EOF", col = coltab,
+           cex.lab = 3, cex.axis = 3, cex.main = 3,
+           legend.cex = 20)
+maps::map(database = "world", fill = TRUE, col = "gray", 
+          ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
+lon_prec <- ncvar_get(nc_prec_orig,"X")
+lat_prec <- ncvar_get(nc_prec_orig,"Y")
+time_prec <- ncvar_get(nc_prec_orig,"T")
+time_prec = time_prec * 30.42
+time_prec <- as.Date(time_prec, origin="1960-1-1 00:00", tz="UTC")
+prec_mean <- apply(prec,3,mean,na.rm=TRUE)
+tempseries <- data.frame(year=time_prec,prec=prec_mean)
+tempseries %>% ggplot(aes(x=year,y=prec))+geom_line()+labs(title = "Monthly mean Precipitation from January 1948 to #Feburary 2018", x="year",y="Precipitation" )
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+
+``` r
+mov_avg <- tempseries %>% select(year, prec) %>% mutate(prec_1yr = rollmean(prec, k = 13, fill = NA, align = "right"), prec_5yr = rollmean(prec, k = 61, fill = NA, align = "right"))
+mov_avg %>% gather(key="metrice",value = "value",prec:prec_5yr)%>% ggplot(aes(x=year,y=value,col=metrice))+
+   geom_line()+scale_color_manual(values = c("bisque4","darkred","blue"),labels=c("Monthly mean","Annual mean","5 years moving Average"))+
+   scale_x_date(limits =ymd(c("1948-01-01","2018-01-01")) ,breaks = seq(ymd("1948-01-01"),ymd("2018-01-01"),"10 years"),date_labels ="%Y")+ 
+   scale_y_continuous(breaks = seq(23,33,0.5))+labs( x="year",y="Precipitation" )+
+   theme_clean(base_size = 12,)+
+   theme(legend.title = element_blank(),legend.position = c("top"),legend.direction = "horizontal")
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-4.png)<!-- -->
+
+``` r
+# Decomposing the components of the additive time series
+ts <- ts(prec_mean,start = c(1948,1),end = c(2018,2),frequency = 12,class = "ts")
+#decomposition of ts object into trend,seasonality and error by additive model
+decomposed <- decompose(ts, type = "additive")
+#plot the components of an additive time series
+theme_set(theme_bw())
+autoplot(decomposed)
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-5.png)<!-- -->
+
+``` r
+#remove seasonality from the ts
+decomposed_trend <- ts - decomposed$seasonal
+# Plot the linear trend of seasonally adjusted time series
+# make a dataframe of the trend 
+set.seed(1)
+decomposed_trend_df <- data.frame(date =as.Date(as.yearmon(time(decomposed_trend))),sst=as.matrix(decomposed_trend))
+decomposed_trend_df %>% ggplot(aes(x=date, y=sst))+
+  geom_line(alpha=0.8)+
+  geom_smooth(method= "lm", se=FALSE, col="red") + geom_text(x =1940, y = 0.9, label = "y = 28.37 + 0.000027 x , r² = 0.486", hjust=1.5,colour="blue")+
+  scale_x_date(limits =ymd(c("1948-01-01","2018-02-01")), breaks = seq(ymd("1948-01-01"), ymd("2018-02-01"),"10 years"), minor_breaks = "1 years", date_labels ="%Y")+
+  labs(x="year",y="Precipitation" )+ 
+  scale_y_continuous(breaks = seq(25,32,0.2))+
+  theme_clean()
+```
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-6.png)<!-- -->![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-7.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-6.png)<!-- -->
+
+``` r
+# Temporal variability of Seasonality
+year=time_prec
+ts_df <- data.frame(time=year, prec=prec_mean) 
+
+ts_df <- ts_df %>% mutate(year=year(time)) %>% mutate(month= month(time,label=TRUE)) %>% mutate(season = case_when(month %in% c("Nov","Dec","Jan","Feb") ~ "Winter", month %in% c("Mar","Apr","May") ~ "Spring", month %in% c("Jun","Jul","Aug") ~ "Summer", month %in%  c("Sep","Oct") ~ "Fall", TRUE ~ NA_character_) ) %>% select(-time)  %>%  as_tibble()
+ts_df$season <- as.factor(ts_df$season)
+ts_df %>% ggplot(aes(x=month,y=prec,fill=season)) + geom_boxplot(position = position_dodge(width = 0.7))+scale_y_continuous(breaks = seq(20,35,0.5))+labs(x="month",y="Precipitation")+scale_fill_manual(values = c("antiquewhite4","darkolivegreen4","chocolate4","cornflowerblue"))+theme_clean()+theme(legend.title = element_blank())
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-7.png)<!-- -->
