@@ -145,3 +145,57 @@ plot('variable', col = (km.out$cluster + 1),
        xlab = "", ylab = "", pch = 20, cex = 2)
 
 # prediction
+
+
+
+
+
+
+
+
+
+prec_s1 <- which(is.na(prec[,,1]))
+prec_s2 <- which(!is.na(prec[,,1]))
+prec_sst <- matrix(0, nrow = dim(prec)[3], ncol = length(prec_s2))
+for(i in 1:dim(prec)[3])
+   prec_sst[i,] <- prec[,,i][-prec_s1]
+prec_eof <- svd(prec_sst)$v
+loc <- as.matrix(expand.grid(x = X_prec, Y_prec = Y_prec))[prec_s2,]
+coltab <- colorRampPalette(brewer.pal(9,"BrBG"))(2048)
+# plot the first EOF
+par(mfrow=c(1,1))
+quilt.plot(loc, prec_eof[,1], nx = length(X_prec), 
+           ny = length(Y_prec), xlab = "longitude",
+           ylab = "latitude", 
+           main = "1st EOF", col = coltab,
+           cex.lab = 3, cex.axis = 3, cex.main = 3,
+           legend.cex = 20)
+maps::map(database = "world", fill = TRUE, col = "gray", 
+          ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
+
+# plot the second EOF
+par(mar = c(5,5,3,3), oma=c(1,1,1,1))
+quilt.plot(loc, prec_eof[,2], nx = length(X_prec), 
+           ny = length(Y_prec), xlab = "longitude",
+           ylab = "latitude", 
+           main = "2nd EOF", col = coltab,
+           cex.lab = 3, cex.axis = 3, cex.main = 3,
+           legend.cex = 20)
+maps::map(database = "world", fill = TRUE, col = "gray", 
+          ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
+
+lon_prec <- ncvar_get(nc_prec_orig,"X")
+lat_prec <- ncvar_get(nc_prec_orig,"Y")
+time_prec <- ncvar_get(nc_prec_orig,"T")
+time_prec = time_prec * 30.42
+time_prec <- as.Date(time_prec, origin="1960-1-1 00:00", tz="UTC")
+prec_mean <- apply(prec,3,mean,na.rm=TRUE)
+tempseries <- data.frame(year=time_prec,prec=prec_mean)
+tempseries %>% ggplot(aes(x=year,y=prec))+geom_line()+labs(title = "Monthly mean Precipitation from January 1948 to Feburary 2018", x="year",y="Precipitation" )
+mov_avg <- tempseries %>% select(year, prec) %>% mutate(prec_1yr = rollmean(prec, k = 13, fill = NA, align = "right"), prec_5yr = rollmean(prec, k = 61, fill = NA, align = "right"))
+mov_avg %>% gather(key="metrice",value = "value",prec:prec_5yr)%>% ggplot(aes(x=year,y=value,col=metrice))+
+   geom_line()+scale_color_manual(values = c("bisque4","darkred","blue"),labels=c("Monthly mean","Annual mean","5 years moving Average"))+
+   scale_x_date(limits =ymd(c("1948-01-01","2018-01-01")) ,breaks = seq(ymd("1948-01-01"),ymd("2018-01-01"),"10 years"),date_labels ="%Y")+ 
+   scale_y_continuous(breaks = seq(23,33,0.5))+labs( x="year",y="SST [°C]" )+
+   theme_clean(base_size = 12,)+
+   theme(legend.title = element_blank(),legend.position = c("top"),legend.direction = "horizontal")
