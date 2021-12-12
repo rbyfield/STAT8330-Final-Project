@@ -1,5 +1,5 @@
 sst = read.csv('F:\\courses\\STAT\\8330 data analysis 3\\project3\\github\\STAT8330-Final-Project\\DataGeneration\\sst_1.csv',sep = ',',header = TRUE)  
-for (i in 2:23)
+for (i in 2:24)
 {
   filename = sprintf('F:\\courses\\STAT\\8330 data analysis 3\\project3\\github\\STAT8330-Final-Project\\DataGeneration\\sst_%d.csv', i)
   sst_i = read.csv(filename,sep = ',',header = TRUE)  
