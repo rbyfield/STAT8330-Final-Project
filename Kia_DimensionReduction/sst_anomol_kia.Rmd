@@ -479,7 +479,7 @@ print(paste("The file has", ncnew$ndim,"dimensions"))
 ```
 
 ```{r}
-# save EOFar with [12, 6000, 70] --> [months, Long(120)*Lat(50), years]
+# save EOFar with [12, 6000, 70] --> [months, Long(120)*Lat(50), # of EOF]
 dat1=array(0,dim=c(120,50,70,12))
 for (mo in 1:12){
   for (md in 1:70){
@@ -505,8 +505,6 @@ monID=format(ISOdate(2004,1:12,1),"%B")
 for (m in 1:12){
     n=1
     mapMatrix = - matrix(dat3[,,70,m]/sqrt(cos(LAT*pi/180)),nrow=120)
-    print (min(mapMatrix))
-    print (max(mapMatrix))
     mapMatrix = pmax(pmin(mapMatrix,0.05),-0.05)
     rgb.palette=colorRampPalette(c('red','yellow','orange', 'white', 
                                    'green','blue','darkblue'),interpolate='spline')
@@ -555,10 +553,12 @@ for (m in 1:12){
 
 ```{r}
 #plot precentage eigenvalues and cumulatives
-modeNo=1:30
+modeNo=1:70
 for (m in 1:12) { 
    par(mar=c(4,5,2,4))
-  plot(modeNo, pEigenMat[,m],type="o", ylim=c(0,30),
+  jpeg(paste("Eigenval_perc_", m, "_prec_month", m, ".png"),
+        width=1200, height=1000, res=200)
+  plot(modeNo, pEigenMat[,m],type="o", ylim=c(0,50),
        col="red", lwd=2.0, xlab="",ylab="", xaxt="n", yaxt="n")
   title(ylab="Percentage Variance [%]",col.lab="red",
         main = paste("Prec. 1948-2018 Covariance Eigenvalues for", monID[m], sep = " "),
@@ -577,15 +577,17 @@ for (m in 1:12) {
          text.font=2,cex=1.0, text.col="blue")
   mtext("Cumulative variance [%]",side=4,line=2.5, cex=1.4, col="blue")
   mtext("EOF Mode Number", side=1,line=2,cex=1.4)
+  dev.off()
 }
 ```
+
 ```{r}
 # plotting them in the same plot
-modeNo=1:30
+modeNo=1:70
 par(mfrow = c(4, 3))  # 4 rows and 3 columns
 for (m in 1:12) { 
   par(mar=c(4,4,2,4))
-  plot(modeNo, pEigenMat[,m],type="o", ylim=c(0,30),
+  plot(modeNo, pEigenMat[,m],type="o", ylim=c(0,50),
        xlab="", ylab="",
        main = paste("Eigenvalues for", monID[m], split = ""),
        col="red")
@@ -606,6 +608,7 @@ for (m in 1:12) {
 ```
 
 ```{r}
+# plotting the first 6 EOFs:
 monID=format(ISOdate(2004,1:12,1),"%B")
 for (m in 1:12) { 
   for (n in 1:1){
@@ -615,6 +618,8 @@ rgb.palette=colorRampPalette(c('red','yellow','orange', 'white',
                                'green','blue','darkblue'),interpolate='spline')
 int=seq(-0.03,0.05,length.out=61)
 mapMatrix=mapMatrix[, seq(length(mapMatrix[1,]),1)]
+jpeg(paste("EOF", n, "_prec_month", m, "2017.png"),
+         width=1600, height=1000, res=300)
 filled.contour(LON, LAT, mapMatrix, color.palette=rgb.palette, levels=int,
                plot.title=title(main=paste(monID[m],"Precipitation EOF",n),
                                 xlab="", ylab=""),
@@ -622,9 +627,12 @@ filled.contour(LON, LAT, mapMatrix, color.palette=rgb.palette, levels=int,
                key.title=title(main="Scale"))
 mtext("Longitude",side=1,line = 2,cex=1.3)
 mtext("Latitude",side=2,line = 2,cex=1.3)
+dev.off()
 }
 }
 ```
+
+
 # do the same for SST anomaly
 ```{r}
 ##### sst variables 
@@ -649,11 +657,12 @@ sst_anom[is.na(sst_anom)]<-mean_all_sst
 # time_sst1 -> has the form of month.day.year starting from 1-1-1960
 
 # SST anomolies over latitude for fixed long[mm/day]
-plot(Y_sst,sst_anom[80,,842], 
+jpeg("sst_fixedLong_Feb2018.png",width=1600, height=1000, res=250)
+plot(Y_sst,sst_anom[84,,842], 
      type="l", xlab="Latitude", ylab="SST anomolies [degree C]",
      main="SST anomolies over latitude for fixed long. degree C at Feb. 2018",
      lwd=3)
-
+dev.off()
 
 climMAT_sst = matrix(0,nrow=84,ncol=33) #stoarge matrix for the climatology 
 sdMAT_sst = matrix(0,nrow=84,ncol=33) #storage matrix for the standard deviations
@@ -668,14 +677,19 @@ library(maps)
 int=seq(-2,2,length.out=20)
 rgb.palette=colorRampPalette(c('skyblue',  'green', 'blue', 'yellow', 'orange', 'pink','red', 
                                'maroon', 'purple', 'black'),interpolate='spline')
+jpeg("sst_meanoveryears.png",width=1600, height=1000, res=300)
 filled.contour(X_sst, Y_sst, climMAT_sst, color.palette=rgb.palette, levels=int,
                plot.title=title(main="Mean Dec. of 1948-2018 SST anomolies",
                                 xlab="Longitude", ylab="Latitude"),
                plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()},
                key.title=title(main="degree C"))
+dev.off()
 ```
 
 ```{r}
+# save Prec. file in .csv format
+# with 844 columns, Lat, Long., each months(842)
+
 SSTst=matrix(0,nrow=2772,ncol=842)
 for (i in 1:842) {
   SSTst[,i]=as.vector(sst_anom[ , , i])
@@ -727,11 +741,13 @@ mapMatrix_sst=matrix(climMAT_sst[,2+m],nrow=84)
 int=seq(-0.5,0.5,length.out=11)
 rgb.palette=colorRampPalette(c('skyblue',  'green', 'blue', 'yellow', 'orange', 'pink','red', 
                                'maroon', 'purple', 'black'),interpolate='spline')
+jpeg(paste ("sst_meanpermonth_",m,".png"),width=1600, height=1000, res=300)
 filled.contour(LON, LAT, mapMatrix_sst, color.palette=rgb.palette, levels=int,
                plot.title=title(main=paste(monID[m],"1948-2018 SST anomolies"),
                                 xlab="Longitude", ylab="Latitude"),
                plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()},
                key.title=title(main="deg. C"))
+dev.off()
 }
 ```
 
@@ -746,14 +762,19 @@ mapMatrix_sst=matrix(sdMAT_sst[,2+m],nrow=84)
 #mapMatrix_sst=pmin(mapMatrix_sst,5) #Compress the values >8 to 8
 int=seq(0,1.3,length.out=11)
 rgb.palette=colorRampPalette(c('skyblue',  'green', 'blue', 'yellow', 'orange', 'pink', 'red', 'maroon', 'purple', 'black'),interpolate='spline')
+jpeg(paste ("sst_SDpermonth_",m,".png"),width=1600, height=1000, res=300)
 filled.contour(LON, LAT, mapMatrix_sst, color.palette=rgb.palette, levels=int,
                plot.title=title(main=paste(monID[m], "1948-2018 SD(SST anomolies)"), xlab="Longitude", ylab="Latitude"),
                plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()},
                key.title=title(main="deg. C"))
+dev.off()
 }
 ```
 
 ```{r}
+# the standardized matrix, anomprec = prec-mean(month)
+# area weighted anomaly matrix, anomW
+
 anomsst=matrix(0, nrow=2772, ncol=844)
 anomsst[,1:2]=climMAT_sst[,1:2]
 colnames(anomsst)<-colnames(SSTst2)
@@ -767,6 +788,7 @@ anomAW[,3:844]=sqrt(cos(anomsst[,1]*pi/180))*anomsst[,3:844]
 ```
 
 ```{r}
+# EOFs of standardizd anomalies from 1948 - 2017 (Jan. Feb. 2018 not considered)
 EOFar=array(0, dim=c(12,2772,70)) #EOFar[month,gridID,modeNo]
 PCar=array(0, dim=c(12,70,70))
 EigenMat=matrix(0, nrow=70, ncol=12)
@@ -804,7 +826,7 @@ mode2=ncdim_def("Mode","numbers", 1:nmode)
 time2=ncdim_def("Time","months", 1:nmonth)
 var_eof=ncvar_def("EOFvalues", "dimensionless", 
                      list(lon, lat, mode2, time2), 
-                     longname="EOF data from sst data 1948-2018: 
+                     longname="EOF data from sst data 1948-2017: 
                                70modes 12months") 
 ncnew=nc_create(filename, list(var_eof))
 print(paste("The file has", ncnew$ndim,"dimensions"))
@@ -834,21 +856,26 @@ LON=seq(124,by=2, len=84)
 monID=format(ISOdate(2004,1:12,1),"%B")
 for (m in 1:12){
     n=1
-    mapMatrix = - matrix(dat3[,,1,m]/sqrt(cos(LAT*pi/180)),nrow=84)
-    mapMatrix = pmax(pmin(mapMatrix,0.03),-0.03)
+    mapMatrix_sst = - matrix(dat3[,,1,m]/sqrt(cos(LAT*pi/180)),nrow=84)
+    mapMatrix_sst = pmax(pmin(mapMatrix_sst,0.03),-0.03)
     rgb.palette=colorRampPalette(c('red','yellow','orange', 'white', 
                                    'green','blue','darkblue'),interpolate='spline')
     int=seq(-0.03,0.03,length.out=61)
-    mapMatrix=mapMatrix[, seq(length(mapMatrix[1,]),1)]
-    filled.contour(LON, LAT, mapMatrix, color.palette=rgb.palette, levels=int,
-                   plot.title=title(main=paste(monID[m],"Precipitation EOF",n),
+    mapMatrix_sst=mapMatrix_sst[, seq(length(mapMatrix_sst[1,]),1)]
+    jpeg(paste("EOF", n, "_sst_month", m, "2017.png"),
+                width=1600, height=1000, res=300)
+    filled.contour(LON, LAT, mapMatrix_sst, color.palette=rgb.palette, levels=int,
+                   plot.title=title(main=paste(monID[m],"SST EOF",n),
                                     xlab="", ylab=""),
                    plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()},
                    key.title=title(main="Scale"))
     mtext("Longitude",side=1,line = 2,cex=1.3)
     mtext("Latitude",side=2,line = 2,cex=1.3)
+    dev.off()
 }
 ```
+
+
 ```{r}
 # second EOF
 LAT=seq(-32,by=2,len=33)
@@ -857,27 +884,32 @@ monID=format(ISOdate(2004,1:12,1),"%B")
 
 for (m in 1:12){
     n=2
-    mapMatrix = - matrix(dat3[,,2,m]/sqrt(cos(LAT*pi/180)),nrow=84)
-    mapMatrix = pmax(pmin(mapMatrix,0.03),-0.05)
+    mapMatrix_sst = - matrix(dat3[,,2,m]/sqrt(cos(LAT*pi/180)),nrow=84)
+    mapMatrix_sst = pmax(pmin(mapMatrix_sst,0.03),-0.05)
     rgb.palette=colorRampPalette(c('red','yellow','orange', 'white', 
                                    'green','blue','darkblue'),interpolate='spline')
     int=seq(-0.05,0.03,length.out=61)
-    mapMatrix=mapMatrix[, seq(length(mapMatrix[1,]),1)]
-    filled.contour(LON, LAT, mapMatrix, color.palette=rgb.palette, levels=int,
-                   plot.title=title(main=paste(monID[m],"Precipitation EOF",n),
+    mapMatrix_sst=mapMatrix_sst[, seq(length(mapMatrix_sst[1,]),1)]
+    jpeg(paste("EOF", n, "_sst_month", m, "2017.png"),
+         width=1600, height=1000, res=300)
+    filled.contour(LON, LAT, mapMatrix_sst, color.palette=rgb.palette, levels=int,
+                   plot.title=title(main=paste(monID[m],"SST EOF",n),
                                     xlab="", ylab=""),
                    plot.axes={axis(1); axis(2);map('world2', add=TRUE);grid()},
                    key.title=title(main="Scale"))
     mtext("Longitude",side=1,line = 2,cex=1.3)
     mtext("Latitude",side=2,line = 2,cex=1.3)
+    dev.off()
 }
 ```
 
 ```{r}
-#plot precentage eigenvalues and cumulatives
+#plot percentage eigenvalues and cumulative
 modeNo=1:70
 for (m in 1:12) { 
    par(mar=c(4,5,2,4))
+    jpeg(paste("Eigenval_perc_", m, "_sst_month", m, ".png"),
+        width=1200, height=1000, res=200)
   plot(modeNo, pEigenMat[,m],type="o", ylim=c(0,70),
        col="red", lwd=2.0, xlab="",ylab="", xaxt="n", yaxt="n")
   title(ylab="Percentage Variance [%]",col.lab="red",
@@ -897,8 +929,10 @@ for (m in 1:12) {
          text.font=2,cex=1.0, text.col="blue")
   mtext("Cumulative variance [%]",side=4,line=2.5, cex=1.4, col="blue")
   mtext("EOF Mode Number", side=1,line=2,cex=1.4)
+  dev.off()
 }
 ```
+
 
 ```{r}
 # plotting them in the same plot
@@ -925,21 +959,22 @@ for (m in 1:12) {
   mtext("Cum Var [%]",cex=0.6,side=4,line=2)
 }
 ```
+
 ```{r}
 LAT=seq(-32,by=2,len=33)
 LON=seq(124,by=2, len=84)
 monID=format(ISOdate(2004,1:12,1),"%B")
-for (m in 1:12) { 
+for (m in 1:1) { 
   for (n in 1:1){
-mapMatrix = - matrix(EOFar[m,,n]/sqrt(cos(climMAT[,1]*pi/180)),nrow=84)
-print (min(mapMatrix))
-print (max(mapMatrix))
-#mapMatrix = pmax(pmin(mapMatrix,0.03),-0.03)
+mapMatrix_sst = - matrix(EOFar[m,,n]/sqrt(cos(climMAT[,1]*pi/180)),nrow=84)
+print (min(mapMatrix_sst))
+print (max(mapMatrix_sst))
+#mapMatrix_sst = pmax(pmin(mapMatrix_sst,0.03),-0.03)
 rgb.palette=colorRampPalette(c('red','yellow','orange', 'white', 
                                'green','blue','darkblue'),interpolate='spline')
 int=seq(-0.03,0.03,length.out=61)
-mapMatrix=mapMatrix[, seq(length(mapMatrix[1,]),1)]
-filled.contour(LON, LAT, mapMatrix, color.palette=rgb.palette, levels=int,
+mapMatrix_sst=mapMatrix_sst[, seq(length(mapMatrix_sst[1,]),1)]
+filled.contour(LON, LAT, mapMatrix_sst, color.palette=rgb.palette, levels=int,
                plot.title=title(main=paste(monID[m],"Precipitation EOF",n),
                                 xlab="", ylab=""),
                plot.axes={axis(1); axis(2);map('usa', add=TRUE);grid()},
