@@ -182,7 +182,32 @@ library(fields)
 library(RColorBrewer)
 library(magrittr) # needs to be run every time you start R and want to use %>%
 library(dplyr)    # alternatively, this also loads %>%
+library(lattice)
+library(latticeExtra)
 ```
+
+    ## 
+    ## Attaching package: 'latticeExtra'
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     layer
+
+``` r
+library(reshape2)
+library(maps)
+```
+
+    ## 
+    ## Attaching package: 'maps'
+
+    ## The following object is masked from 'package:viridis':
+    ## 
+    ##     unemp
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     map
 
 ``` r
 # reading the data
@@ -356,6 +381,17 @@ ts_df %>% ggplot(aes(x=month,y=sst,fill=season)) + geom_boxplot(position = posit
 ![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-2-7.png)<!-- -->
 
 ``` r
+sst_avg_grid = rowMeans(sst_anom,na.rm=FALSE,dims=2)
+colors <- rev(brewer.pal(10, "RdYlBu"))
+pal <- colorRampPalette(colors)
+grid <- expand.grid(x=lon_sst, y=lat_sst)
+grid$sst_avg <- as.vector(sst_avg_grid)
+levelplot(sst_avg~x*y,grid,col.regions = pal(100),xlab='Longitude',ylab='Latitude',main='Average SST')
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
 prec_s1 <- which(is.na(prec[,,1]))
 prec_s2 <- which(!is.na(prec[,,1]))
 prec_sst <- matrix(0, nrow = dim(prec)[3], ncol = length(prec_s2))
@@ -376,7 +412,7 @@ maps::map(database = "world", fill = TRUE, col = "gray",
           ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
 ```
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
 # plot the second EOF
@@ -391,7 +427,7 @@ maps::map(database = "world", fill = TRUE, col = "gray",
           ylim=c(-35, 35), xlim = c(123.9,290.1), add = T)
 ```
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
 ``` r
 lon_prec <- ncvar_get(nc_prec_orig,"X")
@@ -404,7 +440,7 @@ tempseries <- data.frame(year=time_prec,prec=prec_mean)
 tempseries %>% ggplot(aes(x=year,y=prec))+geom_line()+labs(title = "Monthly mean Precipitation from January 1948 to #Feburary 2018", x="year",y="Precipitation" )
 ```
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
 
 ``` r
 mov_avg <- tempseries %>% select(year, prec) %>% mutate(prec_1yr = rollmean(prec, k = 13, fill = NA, align = "right"), prec_5yr = rollmean(prec, k = 61, fill = NA, align = "right"))
@@ -416,7 +452,7 @@ mov_avg %>% gather(key="metrice",value = "value",prec:prec_5yr)%>% ggplot(aes(x=
    theme(legend.title = element_blank(),legend.position = c("top"),legend.direction = "horizontal")
 ```
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-4.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
 
 ``` r
 # Decomposing the components of the additive time series
@@ -428,7 +464,7 @@ theme_set(theme_bw())
 autoplot(decomposed)
 ```
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-5.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-5.png)<!-- -->
 
 ``` r
 #remove seasonality from the ts
@@ -448,7 +484,7 @@ decomposed_trend_df %>% ggplot(aes(x=date, y=sst))+
 
     ## `geom_smooth()` using formula 'y ~ x'
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-6.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-6.png)<!-- -->
 
 ``` r
 # Temporal variability of Seasonality
@@ -460,4 +496,15 @@ ts_df$season <- as.factor(ts_df$season)
 ts_df %>% ggplot(aes(x=month,y=prec,fill=season)) + geom_boxplot(position = position_dodge(width = 0.7))+scale_y_continuous(breaks = seq(20,35,0.5))+labs(x="month",y="Precipitation")+scale_fill_manual(values = c("antiquewhite4","darkolivegreen4","chocolate4","cornflowerblue"))+theme_clean()+theme(legend.title = element_blank())
 ```
 
-![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-3-7.png)<!-- -->
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-4-7.png)<!-- -->
+
+``` r
+prec_avg_grid = rowMeans(prec,na.rm=FALSE,dims=2)
+colors <- rev(brewer.pal(10, "RdYlBu"))
+pal <- colorRampPalette(colors)
+grid <- expand.grid(x=lon_prec, y=lat_prec)
+grid$prec_avg <- as.vector(prec_avg_grid)
+levelplot(prec_avg~x*y,grid,col.regions = pal(100),xlab='Longitude',ylab='Latitude',main='Average Precipitation')
+```
+
+![](ExploratoryAnalysisCode_combine_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
