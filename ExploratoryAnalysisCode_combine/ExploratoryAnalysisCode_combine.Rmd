@@ -43,6 +43,10 @@ library(fields)
 library(RColorBrewer)
 library(magrittr) # needs to be run every time you start R and want to use %>%
 library(dplyr)    # alternatively, this also loads %>%
+library(lattice)
+library(latticeExtra)
+library(reshape2)
+library(maps)
 ```
 
 ```{r no-format, echo=TRUE}
@@ -175,6 +179,15 @@ ts_df %>% ggplot(aes(x=month,y=sst,fill=season)) + geom_boxplot(position = posit
 
 
 ```{r, echo=TRUE}
+sst_avg_grid = rowMeans(sst_anom,na.rm=FALSE,dims=2)
+colors <- rev(brewer.pal(10, "RdYlBu"))
+pal <- colorRampPalette(colors)
+grid <- expand.grid(x=lon_sst, y=lat_sst)
+grid$sst_avg <- as.vector(sst_avg_grid)
+levelplot(sst_avg~x*y,grid,col.regions = pal(100),xlab='Longitude',ylab='Latitude',main='Average SST')
+```
+
+```{r, echo=TRUE}
 prec_s1 <- which(is.na(prec[,,1]))
 prec_s2 <- which(!is.na(prec[,,1]))
 prec_sst <- matrix(0, nrow = dim(prec)[3], ncol = length(prec_s2))
@@ -252,22 +265,11 @@ ts_df %>% ggplot(aes(x=month,y=prec,fill=season)) + geom_boxplot(position = posi
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r, echo=TRUE}
+prec_avg_grid = rowMeans(prec,na.rm=FALSE,dims=2)
+colors <- rev(brewer.pal(10, "RdYlBu"))
+pal <- colorRampPalette(colors)
+grid <- expand.grid(x=lon_prec, y=lat_prec)
+grid$prec_avg <- as.vector(prec_avg_grid)
+levelplot(prec_avg~x*y,grid,col.regions = pal(100),xlab='Longitude',ylab='Latitude',main='Average Precipitation')
+```
