@@ -155,4 +155,3 @@ month_mean_prec = data.frame(month_num=factor(c(1:12)), prec=month_mean_prec, mo
 ggplot(month_mean_prec, aes(x=factor(month_num),y=prec))+geom_point(aes(x=month_num,y=prec)) + scale_x_discrete(breaks = c(1:12), labels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")) + labs(title = "Mean Precipitation for each month", x="month",y="Temperature")
 ```
 
-
