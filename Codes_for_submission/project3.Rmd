@@ -1465,4 +1465,19 @@ pred <- predict(mod_svm, newdata = test)
 mean(pred==Prec.test)
 ```
 
-
+### Gradient Boosting Machine
+```{r, echo=TRUE}
+library(gbm)
+boost <- gbm(Average_Prec ~., data = train, distribution = "laplace",
+shrinkage = 0.05,
+interaction.depth = 5,
+bag.fraction = 0.66,
+n.minobsinnode = 1,
+cv.folds = 100,
+keep.data = F,
+verbose = F,
+n.trees = 300)
+boost.pred <- predict(boost, test, n.trees = 300)
+test <- test$Average_Prec
+mean((boost.pred - test)^2)
+```
