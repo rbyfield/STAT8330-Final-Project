@@ -1,5 +1,7 @@
 project3
 ================
+Richard Byfield, Kianoosh Sattari, Harpreet Kaur, Suhwan Lee, and Jian
+Liu
 12/08/2021
 
 <!-- #Above is the header. there are options to change formatting if the default doesn't suit your style -->
@@ -2013,27 +2015,10 @@ Data2$P_7 <- as.factor(Data2$P_7)
 Data2$P_8 <- as.factor(Data2$P_8)
 Data2$P_9 <- as.factor(Data2$P_9)
 Data2$P_10 <- as.factor(Data2$P_10)
+Data2$NA_Section <- as.factor(Data$NA_Section)
 Data2$Pacific_Section <- as.factor(Data$Pacific_Section)
 Data2$Season <- as.factor(Data$Season)
-Data2$Month <- as.factor(Data$Month)
-Data2$Year <- as.factor(Data$Year)
-quantile(Data2$Average_Prec)
 ```
-
-    ##        0%       25%       50%       75%      100% 
-    ## 0.4867404 1.6778981 2.0618437 2.4737630 4.9702105
-
-``` r
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=2.4737630 & Data2$Average_Prec<=4.9702105,4,Data2$Average_Prec)
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=2.0618437 & Data2$Average_Prec<2.4737630,3,Data2$Average_Prec)
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=1.6778981 & Data2$Average_Prec<2.0618437,2,Data2$Average_Prec)
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=0.4 & Data2$Average_Prec<1.6778981,1,Data2$Average_Prec)
-Average_Prec_factor <- as.factor(Data2$Average_Prec)
-#Data2$Average_Prec
-plot(Average_Prec_factor)
-```
-
-![](project3_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
 ``` r
 #define matrix of predictor variables
@@ -2073,7 +2058,7 @@ best_lambda <- cv_model$lambda.min
 best_lambda
 ```
 
-    ## [1] 1.604647e-05
+    ## [1] 7.864233e-06
 
 ``` r
 plot(cv_model)
@@ -2088,31 +2073,31 @@ coef(model_cv)
 
     ## 25 x 1 sparse Matrix of class "dgCMatrix"
     ##                        s0
-    ## (Intercept)  2.029541e+00
-    ## NA_1        -1.680569e-02
-    ## NA_2         1.453991e-01
-    ## NA_3         1.066256e-01
-    ## NA_4         1.587233e-01
-    ## NA_5         1.282231e-01
-    ## NA_6         7.052995e-02
-    ## NA_7        -7.965427e-06
-    ## NA_8        -8.047452e-02
-    ## NA_9        -3.086795e-02
-    ## NA_10       -1.250357e-01
+    ## (Intercept)  2.032141e+00
+    ## NA_1        -1.681085e-02
+    ## NA_2         1.454311e-01
+    ## NA_3         1.066624e-01
+    ## NA_4         1.587683e-01
+    ## NA_5         1.282774e-01
+    ## NA_6         7.057405e-02
+    ## NA_7        -7.400212e-06
+    ## NA_8        -8.048613e-02
+    ## NA_9        -3.088550e-02
+    ## NA_10       -1.250680e-01
     ## P_1          .           
-    ## P_2          2.530176e-02
-    ## P_3          1.626578e-02
-    ## P_4          4.371664e-04
+    ## P_2          2.531501e-02
+    ## P_3          1.627641e-02
+    ## P_4          4.439788e-04
     ## P_5          .           
     ## P_6          .           
-    ## P_7         -2.158461e-03
-    ## P_8         -1.289527e-02
-    ## P_9         -1.089830e-02
-    ## P_10        -6.969361e-03
-    ## Month        1.920768e-02
-    ## Year        -2.310966e-01
-    ## Average_SST  1.399353e-01
-    ## Season      -8.018316e-02
+    ## P_7         -2.175564e-03
+    ## P_8         -1.289930e-02
+    ## P_9         -1.090083e-02
+    ## P_10        -6.971100e-03
+    ## Month        1.956700e-02
+    ## Year        -2.354099e-01
+    ## Average_SST  1.401073e-01
+    ## Season      -8.047019e-02
 
 ``` r
 cv_model <- cv.glmnet(x2, y1, alpha = 1)
@@ -2120,7 +2105,7 @@ best_lambda <- cv_model$lambda.min
 best_lambda
 ```
 
-    ## [1] 1.604647e-05
+    ## [1] 7.864233e-06
 
 ``` r
 plot(cv_model)
@@ -2135,47 +2120,778 @@ coef(model_cv)
 
     ## 22 x 1 sparse Matrix of class "dgCMatrix"
     ##                        s0
-    ## (Intercept)  2.569605e+00
-    ## NA_1        -1.110890e-01
-    ## NA_2         1.454093e-01
-    ## NA_3         1.728888e-01
-    ## NA_4         2.947165e-01
-    ## NA_5         2.655930e-01
-    ## NA_6         1.586368e-01
-    ## NA_7        -1.496045e-05
-    ## NA_8        -1.531693e-01
-    ## NA_9        -5.495382e-02
-    ## NA_10       -2.401472e-01
-    ## P_2          4.928332e-02
-    ## P_3          3.554937e-02
-    ## P_4          6.753025e-03
-    ## P_7         -8.853298e-05
-    ## P_8         -2.262265e-02
-    ## P_9         -1.903029e-02
-    ## P_10        -8.727192e-04
-    ## Month        3.693133e-02
-    ## Year        -4.442243e-01
-    ## Average_SST  2.430699e-01
-    ## Season      -1.621714e-01
+    ## (Intercept)  2.008732e+00
+    ## NA_1        -1.468272e-02
+    ## NA_2         1.468075e-01
+    ## NA_3         1.081168e-01
+    ## NA_4         1.603204e-01
+    ## NA_5         1.304055e-01
+    ## NA_6         7.270218e-02
+    ## NA_7        -7.925763e-06
+    ## NA_8        -7.854619e-02
+    ## NA_9        -2.872660e-02
+    ## NA_10       -1.296633e-01
+    ## P_2          2.606677e-02
+    ## P_3          1.695009e-02
+    ## P_4          1.020056e-03
+    ## P_7         -4.690964e-05
+    ## P_8         -1.271110e-02
+    ## P_9         -1.093160e-02
+    ## P_10        -2.476732e-04
+    ## Month        1.956700e-02
+    ## Year        -2.354099e-01
+    ## Average_SST  1.401073e-01
+    ## Season      -8.047019e-02
 
 ``` r
 Reduced_Data <- Data2[, -which(names(Data2) %in% c('P_1', 'P_5', 'P_6'))]
 Reduced_Data
 ```
 
-    ## # A tibble: 8,420 x 23
-    ##    Average_Prec Average_SST Month Year  Season NA_1  NA_2  P_2   NA_3  P_3  
-    ##           <dbl>       <dbl> <fct> <fct> <fct>  <fct> <fct> <fct> <fct> <fct>
-    ##  1            1     -0.335  1     1     4      1     0     0     0     0    
-    ##  2            1     -0.660  2     1     4      1     0     0     0     0    
-    ##  3            1     -0.478  3     1     1      1     0     0     0     0    
-    ##  4            1     -0.295  4     1     1      1     0     0     0     0    
-    ##  5            2     -0.0824 5     1     1      1     0     0     0     0    
-    ##  6            2     -0.398  6     1     2      1     0     0     0     0    
-    ##  7            4     -0.475  7     1     2      1     0     0     0     0    
-    ##  8            4     -0.313  8     1     2      1     0     0     0     0    
-    ##  9            4     -0.385  9     1     3      1     0     0     0     0    
-    ## 10            3     -0.198  10    1     3      1     0     0     0     0    
-    ## # ... with 8,410 more rows, and 13 more variables: NA_4 <fct>, P_4 <fct>,
+    ## # A tibble: 8,420 x 24
+    ##    Average_Prec Average_SST Month  Year Season NA_1  NA_2  P_2   NA_3  P_3  
+    ##           <dbl>       <dbl> <dbl> <dbl> <fct>  <fct> <fct> <fct> <fct> <fct>
+    ##  1         1.61     -0.335      1     1 4      1     0     0     0     0    
+    ##  2         1.30     -0.660      2     1 4      1     0     0     0     0    
+    ##  3         1.52     -0.478      3     1 1      1     0     0     0     0    
+    ##  4         1.54     -0.295      4     1 1      1     0     0     0     0    
+    ##  5         1.91     -0.0824     5     1 1      1     0     0     0     0    
+    ##  6         2.01     -0.398      6     1 2      1     0     0     0     0    
+    ##  7         3.03     -0.475      7     1 2      1     0     0     0     0    
+    ##  8         2.65     -0.313      8     1 2      1     0     0     0     0    
+    ##  9         4.43     -0.385      9     1 3      1     0     0     0     0    
+    ## 10         2.32     -0.198     10     1 3      1     0     0     0     0    
+    ## # ... with 8,410 more rows, and 14 more variables: NA_4 <fct>, P_4 <fct>,
     ## #   NA_5 <fct>, NA_6 <fct>, NA_7 <fct>, P_7 <fct>, NA_8 <fct>, P_8 <fct>,
-    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, Pacific_Section <fct>
+    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, NA_Section <fct>,
+    ## #   Pacific_Section <fct>
+
+# Part5: Prediction
+
+## Part5(a): numeric response
+
+### Baseline method 1 (persistance)
+
+``` r
+set.seed(1)
+dt = sort(sample(nrow(Reduced_Data), nrow(Reduced_Data)*.7))
+train<-Reduced_Data[dt,]
+test<-Reduced_Data[-dt,]
+train
+```
+
+    ## # A tibble: 5,894 x 24
+    ##    Average_Prec Average_SST Month  Year Season NA_1  NA_2  P_2   NA_3  P_3  
+    ##           <dbl>       <dbl> <dbl> <dbl> <fct>  <fct> <fct> <fct> <fct> <fct>
+    ##  1         1.52     -0.478      3     1 1      1     0     0     0     0    
+    ##  2         1.54     -0.295      4     1 1      1     0     0     0     0    
+    ##  3         2.01     -0.398      6     1 2      1     0     0     0     0    
+    ##  4         3.03     -0.475      7     1 2      1     0     0     0     0    
+    ##  5         1.35     -0.322     14     2 4      1     0     0     0     0    
+    ##  6         1.38     -0.0861    15     2 1      1     0     0     0     0    
+    ##  7         2.04     -0.152     16     2 1      1     0     0     0     0    
+    ##  8         1.65     -0.120     17     2 1      1     0     0     0     0    
+    ##  9         3.25     -0.484     19     2 2      1     0     0     0     0    
+    ## 10         2.34     -0.159     22     2 3      1     0     0     0     0    
+    ## # ... with 5,884 more rows, and 14 more variables: NA_4 <fct>, P_4 <fct>,
+    ## #   NA_5 <fct>, NA_6 <fct>, NA_7 <fct>, P_7 <fct>, NA_8 <fct>, P_8 <fct>,
+    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, NA_Section <fct>,
+    ## #   Pacific_Section <fct>
+
+``` r
+test
+```
+
+    ## # A tibble: 2,526 x 24
+    ##    Average_Prec Average_SST Month  Year Season NA_1  NA_2  P_2   NA_3  P_3  
+    ##           <dbl>       <dbl> <dbl> <dbl> <fct>  <fct> <fct> <fct> <fct> <fct>
+    ##  1         1.61     -0.335      1     1 4      1     0     0     0     0    
+    ##  2         1.30     -0.660      2     1 4      1     0     0     0     0    
+    ##  3         1.91     -0.0824     5     1 1      1     0     0     0     0    
+    ##  4         2.65     -0.313      8     1 2      1     0     0     0     0    
+    ##  5         4.43     -0.385      9     1 3      1     0     0     0     0    
+    ##  6         2.32     -0.198     10     1 3      1     0     0     0     0    
+    ##  7         1.36     -0.324     11     1 4      1     0     0     0     0    
+    ##  8         1.41     -0.409     12     1 4      1     0     0     0     0    
+    ##  9         1.69     -0.342     13     2 4      1     0     0     0     0    
+    ## 10         2.65     -0.370     18     2 2      1     0     0     0     0    
+    ## # ... with 2,516 more rows, and 14 more variables: NA_4 <fct>, P_4 <fct>,
+    ## #   NA_5 <fct>, NA_6 <fct>, NA_7 <fct>, P_7 <fct>, NA_8 <fct>, P_8 <fct>,
+    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, NA_Section <fct>,
+    ## #   Pacific_Section <fct>
+
+``` r
+predictions = rep(-1, nrow(test))
+for (i in 1:nrow(test))
+{
+  same_loc_data=train[test[i,]$NA_Section==train$NA_Section & test[i,]$Pacific_Section==train$Pacific_Section,]
+  for (j in 1:nrow(train))
+  {
+    last_month_data = same_loc_data[same_loc_data$Month==test[i,]$Month-j,]
+    if (nrow(last_month_data) > 0)
+    {
+      break
+    }
+  }
+  if (nrow(last_month_data) > 0)
+  {
+      predictions[i] = last_month_data$Average_Prec
+  }
+  else
+  {
+      predictions[i] = 0
+  }
+}
+MSE = mean((predictions-test$Average_Prec)**2)
+MSE
+```
+
+    ## [1] 0.5143743
+
+### Baseline method 2 (climatology forecast)
+
+``` r
+train_climate = train
+train_climate$Month = train_climate$Month %% 12
+train_climate[train_climate$Month==0,]$Month=12
+test_climate = test
+test_climate$Month = test_climate$Month %% 12
+test_climate[test_climate$Month==0,]$Month=12
+
+month_avg = rep(0,12)
+for (i in 1:12)
+{
+  month_avg[i] = mean(train_climate[train_climate$Month==i,]$Average_Prec)
+}
+
+predictions = rep(-1, nrow(test_climate))
+for (i in 1:nrow(test))
+{
+  predictions[i] = month_avg[test_climate[i,]$Month]
+}
+MSE = mean((predictions-test_climate$Average_Prec)**2)
+MSE
+```
+
+    ## [1] 0.3088286
+
+### Linear Regressor
+
+``` r
+Prec.test <- test$Average_Prec
+lm_mod <- lm(Average_Prec~., data = train)
+pred <- predict(lm_mod, newdata = test)
+mean((pred - Prec.test)^2)
+```
+
+    ## [1] 0.3075449
+
+### Bagging
+
+``` r
+library(randomForest)
+```
+
+    ## randomForest 4.6-14
+
+    ## Type rfNews() to see new features/changes/bug fixes.
+
+    ## 
+    ## Attaching package: 'randomForest'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     combine
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     margin
+
+``` r
+set.seed(1)
+mod_bag <- randomForest(Average_Prec~., train, mtry = 21)
+yhat.bag <- predict (mod_bag , newdata = test)
+mean((yhat.bag - Prec.test)^2)
+```
+
+    ## [1] 0.252414
+
+### Boosting
+
+``` r
+library(gbm)
+```
+
+    ## Loaded gbm 2.1.8
+
+``` r
+set.seed(1)
+mod_boost <- gbm(Average_Prec~., data = train,distribution = "gaussian" , n.trees = 5000,interaction.depth = 4)
+summary(mod_boost)
+```
+
+![](project3_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+
+    ##                             var     rel.inf
+    ## Average_SST         Average_SST 31.74283415
+    ## Month                     Month 31.10850695
+    ## NA_Section           NA_Section 24.03237533
+    ## Season                   Season 10.29442082
+    ## Year                       Year  1.47546074
+    ## NA_2                       NA_2  0.36225239
+    ## NA_1                       NA_1  0.22976020
+    ## NA_3                       NA_3  0.18840638
+    ## NA_4                       NA_4  0.14031674
+    ## NA_10                     NA_10  0.08807924
+    ## NA_9                       NA_9  0.08062660
+    ## NA_8                       NA_8  0.07357244
+    ## NA_6                       NA_6  0.06909294
+    ## NA_5                       NA_5  0.06684618
+    ## NA_7                       NA_7  0.04744890
+    ## P_2                         P_2  0.00000000
+    ## P_3                         P_3  0.00000000
+    ## P_4                         P_4  0.00000000
+    ## P_7                         P_7  0.00000000
+    ## P_8                         P_8  0.00000000
+    ## P_9                         P_9  0.00000000
+    ## P_10                       P_10  0.00000000
+    ## Pacific_Section Pacific_Section  0.00000000
+
+``` r
+yhat.boost <- predict (mod_boost , newdata = test)
+```
+
+    ## Using 5000 trees...
+
+``` r
+mean((yhat.boost - Prec.test)^2)
+```
+
+    ## [1] 0.2567085
+
+### Tree Regressor
+
+``` r
+library(tree)
+```
+
+    ## Registered S3 method overwritten by 'tree':
+    ##   method     from
+    ##   print.tree cli
+
+``` r
+tree.1 <- tree(Average_Prec~., train)
+summary(tree.1)
+```
+
+    ## 
+    ## Regression tree:
+    ## tree(formula = Average_Prec ~ ., data = train)
+    ## Variables actually used in tree construction:
+    ## [1] "Season"     "NA_Section"
+    ## Number of terminal nodes:  6 
+    ## Residual mean deviance:  0.2697 = 1588 / 5888 
+    ## Distribution of residuals:
+    ##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+    ## -1.67600 -0.35940 -0.04099  0.00000  0.31850  2.23500
+
+``` r
+cv.tree1 <- cv.tree(tree.1)
+yhat <- predict(tree.1, newdata = test)
+mean((yhat - Prec.test)^2)
+```
+
+    ## [1] 0.2756381
+
+### Random Forest Regressor
+
+``` r
+mod_RF <- randomForest(Average_Prec~., train, importance = TRUE)
+yhat.RF <- predict (mod_RF , newdata = test)
+mean((yhat.RF - Prec.test)^2)
+```
+
+    ## [1] 0.2611118
+
+``` r
+importance(mod_RF)
+```
+
+    ##                     %IncMSE IncNodePurity
+    ## Average_SST      45.5970510    198.993502
+    ## Month            44.6254366    190.523805
+    ## Year             39.6990552    123.539937
+    ## Season          113.4456221    251.112484
+    ## NA_1             18.5504714     23.230367
+    ## NA_2             10.7104950      7.908894
+    ## P_2              10.3009750      7.159255
+    ## NA_3              8.2205081      3.700521
+    ## P_3               6.0252645      3.160370
+    ## NA_4              0.7573596      2.720387
+    ## P_4               1.5850482      2.990503
+    ## NA_5              3.2408888      2.871880
+    ## NA_6              3.6173671      3.751305
+    ## NA_7              4.5909604      3.715308
+    ## P_7               4.8038750      3.439409
+    ## NA_8              2.9473131      2.717470
+    ## P_8               3.1845224      2.601098
+    ## NA_9              4.7471927      2.322448
+    ## P_9               4.2221908      2.186464
+    ## NA_10            10.7242599      3.892496
+    ## P_10             10.8361885      4.417137
+    ## NA_Section       29.0213411     78.395953
+    ## Pacific_Section  27.9559914     79.858828
+
+``` r
+varImpPlot(mod_RF)
+```
+
+![](project3_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+
+### BART
+
+``` r
+typeof(Reduced_Data)
+```
+
+    ## [1] "list"
+
+``` r
+Reduced_Data <- data.frame(Reduced_Data)
+
+
+library(BART)
+```
+
+    ## Loading required package: nlme
+
+    ## 
+    ## Attaching package: 'nlme'
+
+    ## The following object is masked from 'package:raster':
+    ## 
+    ##     getData
+
+    ## The following object is masked from 'package:forecast':
+    ## 
+    ##     getResponse
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     collapse
+
+    ## Loading required package: nnet
+
+    ## Loading required package: survival
+
+``` r
+x <- Reduced_Data[,2:22]
+y <- Reduced_Data[,1]
+xtrain <- train[, 2:22]
+ytrain <- train[,1]
+xtest <- test[,2:22]
+ytest <- test[,1]
+xtrain = data.frame(xtrain)
+ytrain = data.frame(ytrain)
+xtest = data.frame(xtest)
+ytest = data.frame(ytest)
+xtrain = bartModelMatrix(xtrain)
+ytrain = bartModelMatrix(ytrain)
+xtest = bartModelMatrix(xtest)
+ytest = bartModelMatrix(ytest)
+set.seed(1)
+mod.bart <- gbart(xtrain, ytrain, x.test = xtest)
+```
+
+    ## *****Calling gbart: type=1
+    ## *****Data:
+    ## data:n,p,np: 5894, 41, 2526
+    ## y1,yn: -0.589108, -0.732268
+    ## x1,x[n*p]: -0.477833, 1.000000
+    ## xp1,xp[np*p]: -0.335151, 1.000000
+    ## *****Number of Trees: 200
+    ## *****Number of Cut Points: 100 ... 1
+    ## *****burn,nd,thin: 100,1000,1
+    ## *****Prior:beta,alpha,tau,nu,lambda,offset: 2,0.95,0.077488,3,7.79873e-31,2.10777
+    ## *****sigma: 0.000000
+    ## *****w (weights): 1.000000 ... 1.000000
+    ## *****Dirichlet:sparse,theta,omega,a,b,rho,augment: 0,0,1,0.5,1,41,0
+    ## *****printevery: 100
+    ## 
+    ## MCMC
+    ## done 0 (out of 1100)
+    ## done 100 (out of 1100)
+    ## done 200 (out of 1100)
+    ## done 300 (out of 1100)
+    ## done 400 (out of 1100)
+    ## done 500 (out of 1100)
+    ## done 600 (out of 1100)
+    ## done 700 (out of 1100)
+    ## done 800 (out of 1100)
+    ## done 900 (out of 1100)
+    ## done 1000 (out of 1100)
+    ## time: 33s
+    ## trcnt,tecnt: 1000,1000
+
+``` r
+yhat.bart <- mod.bart$yhat.test.mean
+mean((ytest - yhat.bart)^2)
+```
+
+    ## [1] 0.2588662
+
+### Support Vector Machine
+
+``` r
+library(e1071)
+```
+
+    ## 
+    ## Attaching package: 'e1071'
+
+    ## The following object is masked from 'package:raster':
+    ## 
+    ##     interpolate
+
+``` r
+mod_svm <- svm(Average_Prec~., data = train, kernel = 'radial', cost = 10)
+pred <- predict(mod_svm, newdata = test)
+mean((pred - Prec.test)^2)
+```
+
+    ## [1] 0.2658749
+
+## Part5(b): categorical response
+
+![](project3_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
+
+    ## # A tibble: 8,420 x 24
+    ##    Average_Prec Average_SST Month  Year Season NA_1  NA_2  P_2   NA_3  P_3  
+    ##           <dbl>       <dbl> <dbl> <dbl> <fct>  <fct> <fct> <fct> <fct> <fct>
+    ##  1            1     -0.335      1     1 4      1     0     0     0     0    
+    ##  2            1     -0.660      2     1 4      1     0     0     0     0    
+    ##  3            1     -0.478      3     1 1      1     0     0     0     0    
+    ##  4            1     -0.295      4     1 1      1     0     0     0     0    
+    ##  5            2     -0.0824     5     1 1      1     0     0     0     0    
+    ##  6            2     -0.398      6     1 2      1     0     0     0     0    
+    ##  7            4     -0.475      7     1 2      1     0     0     0     0    
+    ##  8            4     -0.313      8     1 2      1     0     0     0     0    
+    ##  9            4     -0.385      9     1 3      1     0     0     0     0    
+    ## 10            3     -0.198     10     1 3      1     0     0     0     0    
+    ## # ... with 8,410 more rows, and 14 more variables: NA_4 <fct>, P_4 <fct>,
+    ## #   NA_5 <fct>, NA_6 <fct>, NA_7 <fct>, P_7 <fct>, NA_8 <fct>, P_8 <fct>,
+    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, NA_Section <fct>,
+    ## #   Pacific_Section <fct>
+
+    ## # A tibble: 5,894 x 24
+    ##    Average_Prec Average_SST Month  Year Season NA_1  NA_2  P_2   NA_3  P_3  
+    ##           <dbl>       <dbl> <dbl> <dbl> <fct>  <fct> <fct> <fct> <fct> <fct>
+    ##  1            1     -0.478      3     1 1      1     0     0     0     0    
+    ##  2            1     -0.295      4     1 1      1     0     0     0     0    
+    ##  3            2     -0.398      6     1 2      1     0     0     0     0    
+    ##  4            4     -0.475      7     1 2      1     0     0     0     0    
+    ##  5            1     -0.322     14     2 4      1     0     0     0     0    
+    ##  6            1     -0.0861    15     2 1      1     0     0     0     0    
+    ##  7            2     -0.152     16     2 1      1     0     0     0     0    
+    ##  8            1     -0.120     17     2 1      1     0     0     0     0    
+    ##  9            4     -0.484     19     2 2      1     0     0     0     0    
+    ## 10            3     -0.159     22     2 3      1     0     0     0     0    
+    ## # ... with 5,884 more rows, and 14 more variables: NA_4 <fct>, P_4 <fct>,
+    ## #   NA_5 <fct>, NA_6 <fct>, NA_7 <fct>, P_7 <fct>, NA_8 <fct>, P_8 <fct>,
+    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, NA_Section <fct>,
+    ## #   Pacific_Section <fct>
+
+    ## # A tibble: 2,526 x 24
+    ##    Average_Prec Average_SST Month  Year Season NA_1  NA_2  P_2   NA_3  P_3  
+    ##           <dbl>       <dbl> <dbl> <dbl> <fct>  <fct> <fct> <fct> <fct> <fct>
+    ##  1            1     -0.335      1     1 4      1     0     0     0     0    
+    ##  2            1     -0.660      2     1 4      1     0     0     0     0    
+    ##  3            2     -0.0824     5     1 1      1     0     0     0     0    
+    ##  4            4     -0.313      8     1 2      1     0     0     0     0    
+    ##  5            4     -0.385      9     1 3      1     0     0     0     0    
+    ##  6            3     -0.198     10     1 3      1     0     0     0     0    
+    ##  7            1     -0.324     11     1 4      1     0     0     0     0    
+    ##  8            1     -0.409     12     1 4      1     0     0     0     0    
+    ##  9            2     -0.342     13     2 4      1     0     0     0     0    
+    ## 10            4     -0.370     18     2 2      1     0     0     0     0    
+    ## # ... with 2,516 more rows, and 14 more variables: NA_4 <fct>, P_4 <fct>,
+    ## #   NA_5 <fct>, NA_6 <fct>, NA_7 <fct>, P_7 <fct>, NA_8 <fct>, P_8 <fct>,
+    ## #   NA_9 <fct>, P_9 <fct>, NA_10 <fct>, P_10 <fct>, NA_Section <fct>,
+    ## #   Pacific_Section <fct>
+
+### Baseline method 1 (persistance)
+
+``` r
+predictions = rep(-1, nrow(test))
+for (i in 1:nrow(test))
+{
+  same_loc_data=train[test[i,]$NA_Section==train$NA_Section & test[i,]$Pacific_Section==train$Pacific_Section,]
+  for (j in 1:nrow(train))
+  {
+    last_month_data = same_loc_data[same_loc_data$Month==test[i,]$Month-j,]
+    if (nrow(last_month_data) > 0)
+    {
+      break
+    }
+  }
+  if (nrow(last_month_data) > 0)
+  {
+      predictions[i] = last_month_data$Average_Prec
+  }
+  else
+  {
+      predictions[i] = 0
+  }
+}
+
+predictions = factor(predictions)
+accuracy = mean(predictions==test$Average_Prec)
+accuracy
+```
+
+    ## [1] 0.3388757
+
+### Baseline method 2 (climatology forecast)
+
+``` r
+train_climate = train
+train_climate$Month = train_climate$Month %% 12
+train_climate[train_climate$Month==0,]$Month=12
+test_climate = test
+test_climate$Month = test_climate$Month %% 12
+test_climate[test_climate$Month==0,]$Month=12
+
+month_avg = rep(0,12)
+for (i in 1:12)
+{
+  month_avg[i] = mean(train_climate[train_climate$Month==i,]$Average_Prec)
+}
+
+for (i in 1:nrow(test_climate))
+{
+  predictions[i] = round(month_avg[test_climate[i,]$Month])
+}
+predictions = factor(predictions)
+accuracy = mean(predictions==test_climate$Average_Prec)
+accuracy
+```
+
+    ## [1] 0.2565321
+
+### Multinomial logistic regression
+
+``` r
+Prec.test = test$Average_Prec
+model <- nnet::multinom(as.factor(Average_Prec) ~., data = train)
+```
+
+    ## # weights:  172 (126 variable)
+    ## initial  value 8170.818964 
+    ## iter  10 value 7941.787758
+    ## iter  20 value 7760.846425
+    ## iter  30 value 7700.922202
+    ## iter  40 value 7659.609439
+    ## iter  50 value 7652.811841
+    ## final  value 7652.762769 
+    ## converged
+
+``` r
+pred <- predict(model, newdata = test)
+mean(pred == Prec.test)
+```
+
+    ## [1] 0.3832146
+
+### Bagging
+
+``` r
+library(randomForest)
+set.seed(1)
+mod_bag <- randomForest(as.factor(Average_Prec)~., train, mtry = 21)
+yhat.bag <- predict (mod_bag , newdata = test, type="class")
+mean(yhat.bag == Prec.test)
+```
+
+    ## [1] 0.3808393
+
+### Boosting
+
+``` r
+library(gbm)
+library(ramify)
+```
+
+    ## 
+    ## Attaching package: 'ramify'
+
+    ## The following objects are masked from 'package:Matrix':
+    ## 
+    ##     tril, triu
+
+    ## The following object is masked from 'package:purrr':
+    ## 
+    ##     flatten
+
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     fill
+
+    ## The following object is masked from 'package:graphics':
+    ## 
+    ##     clip
+
+``` r
+set.seed(1)
+mod_boost <- gbm(as.factor(Average_Prec)~., data = train, n.trees = 5000,interaction.depth = 4)
+```
+
+    ## Distribution not specified, assuming multinomial ...
+
+``` r
+summary(mod_boost)
+```
+
+![](project3_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
+
+    ##                             var     rel.inf
+    ## Average_SST         Average_SST 34.88828193
+    ## Month                     Month 30.98668181
+    ## NA_Section           NA_Section 23.84313615
+    ## Season                   Season  7.80891312
+    ## Year                       Year  1.28778600
+    ## NA_10                     NA_10  0.15172735
+    ## NA_8                       NA_8  0.15089497
+    ## NA_9                       NA_9  0.13686623
+    ## NA_1                       NA_1  0.12310667
+    ## NA_4                       NA_4  0.11617698
+    ## NA_2                       NA_2  0.11077253
+    ## NA_6                       NA_6  0.11013475
+    ## NA_3                       NA_3  0.10746928
+    ## NA_7                       NA_7  0.10725495
+    ## NA_5                       NA_5  0.07079728
+    ## P_2                         P_2  0.00000000
+    ## P_3                         P_3  0.00000000
+    ## P_4                         P_4  0.00000000
+    ## P_7                         P_7  0.00000000
+    ## P_8                         P_8  0.00000000
+    ## P_9                         P_9  0.00000000
+    ## P_10                       P_10  0.00000000
+    ## Pacific_Section Pacific_Section  0.00000000
+
+``` r
+yhat.boost <- predict (mod_boost , newdata = test, type="response")
+```
+
+    ## Using 5000 trees...
+
+``` r
+yhat.boost <- as.factor(argmax(yhat.boost)) ##!
+mean(yhat.boost==Prec.test)
+```
+
+    ## [1] 0.3804434
+
+### Classification tree
+
+``` r
+library(tree)
+tree.1 <- tree(factor(Average_Prec)~., train)
+summary(tree.1)
+```
+
+    ## 
+    ## Classification tree:
+    ## tree(formula = factor(Average_Prec) ~ ., data = train)
+    ## Variables actually used in tree construction:
+    ## [1] "Season"     "NA_Section"
+    ## Number of terminal nodes:  5 
+    ## Residual mean deviance:  2.581 = 15200 / 5889 
+    ## Misclassification error rate: 0.6463 = 3809 / 5894
+
+``` r
+cv.tree1 <- cv.tree(tree.1)
+yhat <- predict(tree.1, newdata = test, type="class")
+mean(yhat==Prec.test)
+```
+
+    ## [1] 0.3372922
+
+### Random Forest
+
+``` r
+mod_RF <- randomForest(factor(Average_Prec)~., train, importance = TRUE)
+yhat.RF <- predict (mod_RF , newdata = test, type="class")
+mean(yhat.RF==Prec.test)
+```
+
+    ## [1] 0.3760887
+
+``` r
+importance(mod_RF)
+```
+
+    ##                          1          2            3          4
+    ## Average_SST      9.5553361  4.9160225 -4.906206932 18.0420585
+    ## Month            7.9209562  3.1063747  0.535110300  7.5253788
+    ## Year             7.6787611  4.0636970 -0.002592718  7.1169056
+    ## Season          40.1847834 13.5219532  6.639253972 37.5716842
+    ## NA_1             7.7847109  5.9306579  8.502179718  6.0281984
+    ## NA_2             0.1343481  0.3760601  0.123749782  7.6913350
+    ## P_2             -1.7884892  1.8625537 -0.112860632 10.0153663
+    ## NA_3             2.5285499 -2.2267011 -2.301086154  3.5727834
+    ## P_3              0.8420803 -0.3124210 -0.970020087  2.8232303
+    ## NA_4            -0.5527666 -4.4330413  2.521874705  5.3119896
+    ## P_4             -2.1155367 -2.3931441  3.084411689  4.7313304
+    ## NA_5            -1.3705968  1.7567690  3.617863542  0.5552330
+    ## NA_6             1.0446618 -0.2623388 -2.706912287  4.0327017
+    ## NA_7             2.9187536  0.3679383  1.630507519  0.7026118
+    ## P_7              2.4563643  0.3928088  1.857169546  1.8051765
+    ## NA_8            -2.3633437  5.9417759 -1.374578752  7.8053479
+    ## P_8             -1.9715029  6.2603100 -2.215739182  9.5695337
+    ## NA_9            -1.6735925  1.3746135  1.020585838  1.8717981
+    ## P_9             -2.4102594  2.9275711 -0.815595130  3.6479273
+    ## NA_10            8.9921814 -2.6864696 -2.038427521  6.3310783
+    ## P_10             8.7654227 -2.1788857 -1.374565458  5.1665590
+    ## NA_Section       5.7150227  4.7536681  5.275629267 14.3505728
+    ## Pacific_Section  6.1465162  5.7561776  2.951788621 15.5547014
+    ##                 MeanDecreaseAccuracy MeanDecreaseGini
+    ## Average_SST                17.789690       117.076504
+    ## Month                      13.337029       105.645663
+    ## Year                       13.456088        76.090936
+    ## Season                     41.660537       142.414557
+    ## NA_1                       13.322331        18.855540
+    ## NA_2                        8.970026         5.413454
+    ## P_2                         9.668024         5.909136
+    ## NA_3                        2.855436         3.387194
+    ## P_3                         3.529870         3.434578
+    ## NA_4                        4.484816         3.447790
+    ## P_4                         4.798932         3.284811
+    ## NA_5                        4.506768         4.856839
+    ## NA_6                        2.908045         4.746918
+    ## NA_7                        5.101174         3.640007
+    ## P_7                         5.513060         3.663023
+    ## NA_8                        8.210344         4.873492
+    ## P_8                         8.442196         5.209117
+    ## NA_9                        2.909289         3.380206
+    ## P_9                         3.510108         3.414546
+    ## NA_10                      10.283577         4.618014
+    ## P_10                       10.442945         4.856195
+    ## NA_Section                 21.653212        48.975790
+    ## Pacific_Section            21.742294        50.555905
+
+``` r
+varImpPlot(mod_RF)
+```
+
+![](project3_files/figure-gfm/unnamed-chunk-60-1.png)<!-- -->
+
+### Support Vector Machine
+
+``` r
+library(e1071)
+mod_svm <- svm(factor(Average_Prec)~., data = train, kernel = 'radial', cost = 10, type = "C-classification")
+pred <- predict(mod_svm, newdata = test)
+mean(pred==Prec.test)
+```
+
+    ## [1] 0.3946952
