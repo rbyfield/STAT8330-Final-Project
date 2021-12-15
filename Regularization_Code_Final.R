@@ -31,16 +31,16 @@ Data2$P_9 <- as.factor(Data2$P_9)
 Data2$P_10 <- as.factor(Data2$P_10)
 Data2$Pacific_Section <- as.factor(Data$Pacific_Section)
 Data2$Season <- as.factor(Data$Season)
-quantile(Data2$Average_Prec)
 
 
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=2.4737630 & Data2$Average_Prec<=4.9702105,4,Data2$Average_Prec)
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=2.0618437 & Data2$Average_Prec<2.4737630,3,Data2$Average_Prec)
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=1.6778981 & Data2$Average_Prec<2.0618437,2,Data2$Average_Prec)
-Data2$Average_Prec<-ifelse(Data2$Average_Prec>=0.4 & Data2$Average_Prec<1.6778981,1,Data2$Average_Prec)
-Data2$Average_Prec <- as.factor(Data2$Average_Prec)
-Data2$Average_Prec
-plot(Data2$Average_Prec)
+#quantile(Data2$Average_Prec)
+#Data2$Average_Prec<-ifelse(Data2$Average_Prec>=2.4737630 & Data2$Average_Prec<=4.9702105,4,Data2$Average_Prec)
+#Data2$Average_Prec<-ifelse(Data2$Average_Prec>=2.0618437 & Data2$Average_Prec<2.4737630,3,Data2$Average_Prec)
+#Data2$Average_Prec<-ifelse(Data2$Average_Prec>=1.6778981 & Data2$Average_Prec<2.0618437,2,Data2$Average_Prec)
+#Data2$Average_Prec<-ifelse(Data2$Average_Prec>=0.4 & Data2$Average_Prec<1.6778981,1,Data2$Average_Prec)
+#Data2$Average_Prec <- as.factor(Data2$Average_Prec)
+#Data2$Average_Prec
+#plot(Data2$Average_Prec)
 
 
 #define matrix of predictor variables
@@ -121,13 +121,25 @@ xtrain <- train[, 2:22]
 ytrain <- train[,1]
 xtest <- test[,2:22]
 ytest <- test[,1]
-xtrain = as.data.frame(xtrain)
-ytrain = as.matrix(ytrain)
-xtest = as.matrix(xtest)
-ytest = as.matrix(ytest)
-typeof(ytrain)
-nrow(xtrain)
-nrow(ytrain)
-
+xtrain = data.frame(xtrain)
+ytrain = data.frame(ytrain)
+xtest = data.frame(xtest)
+ytest = data.frame(ytest)
+xtrain = bartModelMatrix(xtrain)
+ytrain = bartModelMatrix(ytrain)
+xtest = bartModelMatrix(xtest)
+ytest = bartModelMatrix(ytest)
 set.seed(1)
-mod.bart <- gbart(train[,2:22], train[,1], x.test = test[,2:22])
+mod.bart <- gbart(xtrain, ytrain, x.test = xtest)
+yhat.bart <- mod.bart$yhat.test.mean
+mean((ytest - yhat.bart)^2)
+
+library(e1071)
+mod_svm <- svm(Average_Prec~., data = train, kernel = 'radial', cost = 10)
+pred <- predict(mod_svm, newdata = test)
+mean((pred - Prec.test)^2)
+
+
+lm_mod <- lm(Average_Prec~., data = train)
+pred <- predict(lm_mod, newdata = test)
+mean((pred - Prec.test)^2)
